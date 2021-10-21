@@ -32,6 +32,8 @@ class Input:
 
     just_pressed = False
 
+    action_map = None
+
     @classmethod
     def is_action_pressed(cls, action):
         return cls.action_map[action]

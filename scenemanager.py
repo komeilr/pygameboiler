@@ -1,4 +1,3 @@
-import pygame
 from interface import IEvent
 from customevents import SCENEDONE
 from scenes import SplashScene, MenuScene

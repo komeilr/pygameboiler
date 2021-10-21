@@ -50,7 +50,7 @@ class SplashScene(Scene):
         super().__init__()        
         self.name = "SPLASHSCENE"
         self.next = "MENUSCENE"
-        self.background = pygame.Color('orange') # change bg
+        self.background = pygame.Color('orange')  # change bg
 
         self.frame = 0
 
