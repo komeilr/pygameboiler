@@ -175,10 +175,12 @@ class ButtonBase(EventListener):
             self.state_commands[button_state] = [command, args, kwargs]
         
 
-class Button(ButtonBase):
-    def __init__(self, image_name, x, y, w, h):        
+class Button(ButtonBase, pygame.sprite.DirtySprite):
+    def __init__(self, image_name, x, y, w, h, group):
+        self._layer = RenderLayer.HUD.value
         ButtonBase.__init__(self, x, y, w, h)
-        self._layer = RenderLayer.HUD
+        pygame.sprite.DirtySprite.__init__(self, group)
+
 
         try:
             self.image = Content.Image.load(image_name)        
@@ -189,32 +191,43 @@ class Button(ButtonBase):
             self.text = image_name
 
         self.color = pygame.Color('gray')
+        self.border_width = 1
+        self.bold = 0
 
         self.mouse_entered = False
 
     def _on_enter(self, event, **kwargs):
-        if event.body == self:
-            self.mouse_entered = True
-            self.color = self.hover_color
-            self.call_back('on_enter')
-
-    def _on_leave(self, event, **kwargs):
-        if event.body == self:
-            self.mouse_entered = False
-            self.color = self.normal_color
-            self.call_back('on_leave')
-
-    def _on_pressed(self, event, **kwargs):
-        if event.body == self:
-            self.color = self.pressed_color
-            self.call_back('on_pressed')
-
-    def _on_release(self, event, **kwargs):
-
         if hasattr(event, 'body'):
             if event.body == self:
+                self.dirty = 1
+                self.mouse_entered = True
+                self.color = self.hover_color
+                self.call_back('on_enter')
+
+    def _on_leave(self, event, **kwargs):
+        if hasattr(event, 'body'):
+            if event.body == self:
+                self.dirty = 1
+                self.mouse_entered = False
+                self.color = self.normal_color
+                self.call_back('on_leave')
+
+    def _on_pressed(self, event, **kwargs):
+        if hasattr(event, 'body'):
+            if event.body == self:
+                self.dirty = 1
+                self.color = self.pressed_color
+                self.call_back('on_pressed')
+
+    def _on_release(self, event, **kwargs):
+        if hasattr(event, 'body'):
+            if event.body == self:
+                self.dirty = 1
                 self.color = self.released_color
                 self.call_back('on_release')
+
+    def set_bold(self, value):
+        self.bold = value
 
     def process_event(self, event):                    
         if event.type in self.listeners:
@@ -244,12 +257,12 @@ class Button(ButtonBase):
         
         if self.mouse_entered and Input.leftmousedown():
             if not self.disabled: 
-                emit_event(ON_PRESSED, body=self)    
+                emit_event(ON_PRESSED, body=self)
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect, 3)
+        pygame.draw.rect(screen, self.color, self.rect, self.border_width)
         if self.text:
-            text_display = self.draw_text(self.text)
+            text_display = self.draw_text()
             text_display_rect = text_display.get_rect(center=self.rect.center)
             screen.blit(text_display, text_display_rect)
 
@@ -258,5 +271,6 @@ class Button(ButtonBase):
 
     def draw_text(self):
         self.font = Content.Font.get_font('Inconsolata')
+        self.font.set_bold(self.bold)
         self.text_display = self.font.render(self.text, True, self.color)
         return self.text_display

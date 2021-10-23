@@ -28,6 +28,7 @@ class Input:
         K_d: 'ui_right',
         K_RIGHT: 'ui_right',
         K_RETURN: 'ui_accept',
+        K_SPACE: 'ui_accept',
         K_BACKSPACE: 'ui_back',
     }
 
@@ -61,7 +62,6 @@ class Input:
 
         keys_pressed = get_pressed()
 
-        l.info(keys)
         if not cls.just_pressed and keys_pressed[keys[0]] or keys_pressed[keys[1]]:
             cls.just_pressed = True
             return True
