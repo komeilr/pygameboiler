@@ -1,14 +1,17 @@
-from interface import IEvent
+from interface import EventListener
 from customevents import SCENEDONE
-from scenes import SplashScene, MenuScene
+from scenes import SplashScene, MenuScene, SettingsScene
 
 
-class SceneManager(IEvent):
+class SceneManager(EventListener):
     def __init__(self, controller, start_scene):
+        super().__init__()
         self.controller = controller
+
         self.scenes = {
             "SPLASHSCENE": SplashScene,
-            "MENUSCENE": MenuScene
+            "MENUSCENE": MenuScene, 
+            "SETTINGSSCENE": SettingsScene
         }
 
         self.cached_scenes = {}
@@ -18,7 +21,6 @@ class SceneManager(IEvent):
         
         self._set_active(start_scene)
 
-        self.listeners = {}
         self.on_event(SCENEDONE, self.change)
 
     def _set_active(self, scene_name):
@@ -29,19 +31,11 @@ class SceneManager(IEvent):
         
         self.active.enter()
 
-    def handle_event(self, event):
-        for func, args in self.listeners[event.type]:
-            func(event, *args)
-
-    def on_event(self, event_type, cb, *args):
-        if event_type not in self.listeners:
-            self.listeners[event_type] = []
-        self.listeners[event_type].append((cb, args))
-
     def change(self, event):
-        self.previous = self.active        
-        self.active.exit()
-        self._set_active(self.active.next)
+        if event.scene == self.active:
+            self.previous = self.active        
+            self.active.exit()
+            self._set_active(self.active.next)
 
     def process_event(self, event):
         if event.type in self.listeners:

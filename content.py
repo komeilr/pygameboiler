@@ -19,7 +19,7 @@ def load_graphics(root_path, colorkey=(255, 0, 255)):
     return images
 
 
-def load_fonts(root_path, size=20):
+def load_fonts(root_path, size=30):
     fonts = {}
     for file in os.listdir(root_path):
         file_name, ext = os.path.splitext(file)

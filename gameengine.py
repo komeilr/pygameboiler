@@ -2,20 +2,23 @@ import pygame
 import init
 
 
-from interface import IEvent
+from interface import EventListener
 from scenemanager import SceneManager
 from inputhandler import Input
 from constants import FPS_RATE
 from debug import debug_info
 from customevents import DEBUG_TOGGLED
 from utils import emit_event
+from logger import l
 
 from content import Content
 
 
-class GameEngine(IEvent):
+class GameEngine(EventListener):
 
     def __init__(self, console_debug=False, debug=False):
+        super().__init__()
+
         self.screen = pygame.display.get_surface()
 
         self.console_debug = console_debug
@@ -26,8 +29,6 @@ class GameEngine(IEvent):
         self.max_fps = FPS_RATE
 
         self.title = "My Game"
-
-        self.listeners = {}
 
         self.on_event(pygame.QUIT, self.shutdown)
         self.on_event(pygame.KEYDOWN, self.key_pressed)
@@ -52,16 +53,24 @@ class GameEngine(IEvent):
                     print(event)
 
                 if event.type in [pygame.KEYDOWN]:
-                    Input.update_actions(event)
+                    Input.update_keydown_actions(event)
 
                 if event.type in [pygame.KEYUP]:
                     Input.just_pressed = False
+                    Input.update_keyup_actions(event)
+
+                if event.type in [pygame.MOUSEBUTTONDOWN]:
+                    Input.update_mousedown_actions(event)
+
+                if event.type in [pygame.MOUSEBUTTONUP]:
+                    Input.just_pressed_mouse = False
+                    Input.update_mouseup_actions(event)
 
                 if event.type in self.listeners:
                     self.handle_event(event)
 
                 self.scene_manager.process_event(event)
-                Input.reset_action_map()
+                
             # l.info(self.listeners)  # debugs
             # update all the objects.
             self.update(dt)
@@ -70,11 +79,10 @@ class GameEngine(IEvent):
             self.draw()
 
             dt = self.timer.tick(self.max_fps) / 1000.0
+            Input.reset_action_map()
+            # Input.reset_all()
 
         init.teardown()
-
-    def process_event(self, event):
-        pass
 
     def update(self, dt):
         self.scene_manager.update(dt)
@@ -84,8 +92,8 @@ class GameEngine(IEvent):
         self.scene_manager.draw(self.screen)
         # self.screen.blit(self.background_image, self.bg_rect)  # debug for testing Image class
         if self.debug:
-            debug_info(f"Scene: {self.scene_manager.active.name}")
-            debug_info(f"FPS: {int(self.timer.get_fps())}", 30)
+            debug_info(f"FPS: {int(self.timer.get_fps())}")
+            debug_info(f"Scene: {self.scene_manager.active.name}", 40)
             # debug_info(f"dt: {pygame.time.get_ticks()}", 50)
         pygame.display.update()
 
@@ -99,7 +107,7 @@ class GameEngine(IEvent):
     def setup(self):
         self.update_title("")
 
-    def shutdown(self, event):
+    def shutdown(self, _event):
         self.running = False
 
     @staticmethod
@@ -118,14 +126,5 @@ class GameEngine(IEvent):
         if event.key == pygame.K_F3:
             emit_event(DEBUG_TOGGLED)
 
-    def debug_toggled(self, event):
+    def debug_toggled(self, _event):
         self.debug = not self.debug
-
-    def handle_event(self, evt):
-        for func, args in self.listeners[evt.type]:
-            func(evt, *args)
-
-    def on_event(self, evt_type, cb, *args):
-        if evt_type not in self.listeners:
-            self.listeners[evt_type] = []
-        self.listeners[evt_type].append((cb, args))

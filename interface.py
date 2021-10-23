@@ -10,14 +10,16 @@ class IEvent(ABC):
     def on_event(self, evt_type, cb, *args):
         pass
 
-    @abstractmethod
-    def process_event(self, event):
-        pass
 
-    @abstractmethod
-    def update(self, dt):
-        pass
+class EventListener(IEvent):
+    def __init__(self):
+        self.listeners = {}
 
-    @abstractmethod
-    def draw(self, screen):
-        pass
+    def handle_event(self, event):
+        for func, args in self.listeners[event.type]:
+            func(event, *args)
+
+    def on_event(self, event_type, cb, *args):
+        if event_type not in self.listeners:
+            self.listeners[event_type] = []
+        self.listeners[event_type].append((cb, args))

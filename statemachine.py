@@ -1,9 +1,10 @@
-from interface import IEvent
+from interface import EventListener
 from customevents import STATEDONE
 
 
-class StateMachine(IEvent):
+class StateMachine(EventListener):
     def __init__(self):
+        super().__init__()
         self.name = ''
         self.history = []
         self.states = {
@@ -12,7 +13,6 @@ class StateMachine(IEvent):
 
         self.active = self.states['IDLE']
         self.active.enter()
-        self.listeners = {}
 
         self.on_event(STATEDONE, self.change_state)
 
@@ -30,13 +30,7 @@ class StateMachine(IEvent):
         self.active = self.history.pop()
         self.active.enter()
 
-    def handle_event(self, event):
-        super().handle_event(event)
-
-    def on_event(self, event_type, cb, *args):
-        super().on_event(event_type, cb, *args)
-
-    def process_event(self, event):
+    def process_events(self, event):
         pass
 
     def update(self, dt):
@@ -44,9 +38,3 @@ class StateMachine(IEvent):
 
     def draw(self, screen):
         self.active.draw(screen)
-
-
-
-
-
-
