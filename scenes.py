@@ -6,7 +6,6 @@ from utils import emit_event
 from components import Button
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from groups import layered_group
-from enums import RenderLayer
 from logger import l
 
 
@@ -60,7 +59,7 @@ class SplashScene(Scene):
         self.buttons = []
         self.layered_group = layered_group.copy()
 
-        self.btn_new = Button('NEW', 50, 50, 100, 50, self.layered_group)
+        self.btn_new = Button('NEW', 50, 50, 200, 50, self.layered_group)
         self.btn_new.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, centered=True)
         self.btn_new.bind('on_release', self.switch_scene, next_scene='MENUSCENE')
         self.btn_new.config(
@@ -70,8 +69,8 @@ class SplashScene(Scene):
         )
         self.buttons.append(self.btn_new)
 
-        self.btn_settings = Button('SETTINGS', SCREEN_WIDTH // 2, SCREEN_HEIGHT - 75, 200, 50, self.layered_group)
-        self.btn_settings.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50, centered=True)
+        self.btn_settings = Button('SETTINGS', SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125, 200, 50, self.layered_group)
+        self.btn_settings.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 95, centered=True)
         self.btn_settings.bind('on_release', self.switch_scene, next_scene='SETTINGSSCENE')
         self.btn_settings.config(
             pressed_color=pygame.Color('lightblue'),
@@ -80,10 +79,21 @@ class SplashScene(Scene):
         )
         self.buttons.append(self.btn_settings)
 
+        self.btn_quit = Button('QUIT', SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125, 200, 50, self.layered_group)
+        self.btn_quit.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50, centered=True)
+        self.btn_quit.bind('on_release', self._quit)
+        self.btn_quit.config(
+            pressed_color=pygame.Color('lightblue'),
+            hover_color=pygame.Color('violet'),
+            normal_color=pygame.Color('lightblue')
+        )
+        self.buttons.append(self.btn_quit)
+
         self.selected_index = 0
         self.selected = self.buttons[self.selected_index]
 
-        l.info(f"splash: {self.layered_group.sprites()}")
+    def _quit(self):
+        emit_event(pygame.QUIT)
 
     def process_event(self, event):
 
@@ -99,12 +109,12 @@ class SplashScene(Scene):
 
         self.btn_new.process_event(event)
         self.btn_settings.process_event(event)
+        self.btn_quit.process_event(event)
 
     def update(self, dt):
         self.update_mouse_select()
         self.update_selected()
-        self.btn_new.update(dt)
-        self.btn_settings.update(dt)
+        self.layered_group.update(dt)
         self.check_done()
 
     def update_mouse_select(self):
@@ -137,6 +147,7 @@ class SplashScene(Scene):
         self.screen.fill(self.background)
         self.btn_new.draw(self.screen)
         self.btn_settings.draw(self.screen)
+        self.btn_quit.draw(self.screen)
         screen.blit(self.screen, self.screen_rect)
         # screen.blit(self.megaman_image, self.megaman_rect)
 
@@ -158,8 +169,6 @@ class MenuScene(Scene):
             hover_color=pygame.Color('violet'),
             normal_color=pygame.Color('lightblue')
         )
-
-        l.info(f"menu: {self.layered_group.sprites()}")
 
     def process_event(self, event):
         self.btn_back.process_event(event)
@@ -192,15 +201,10 @@ class SettingsScene(Scene):
             normal_color=pygame.Color('lightblue')
         )
 
-        l.info(f"settings: {self.layered_group.sprites()}")
-
     def process_event(self, event):
         self.btn_back.process_event(event)
-        # if Input.is_action_just_pressed('ui_down'):
-        #     self.scene_done()
 
-    def update(self, dt):        
-        # self.btn_back.update(dt)
+    def update(self, dt):
         self.layered_group.update(dt)
         self.check_done()
 

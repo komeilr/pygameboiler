@@ -32,10 +32,11 @@ class SceneManager(EventListener):
         self.active.enter()
 
     def change(self, event):
-        if event.scene == self.active:
-            self.previous = self.active        
-            self.active.exit()
-            self._set_active(self.active.next)
+        if hasattr(event, 'scene'):
+            if event.scene == self.active:
+                self.previous = self.active
+                self.active.exit()
+                self._set_active(self.active.next)
 
     def process_event(self, event):
         if event.type in self.listeners:
