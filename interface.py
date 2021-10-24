@@ -23,3 +23,9 @@ class EventListener(IEvent):
         if event_type not in self.listeners:
             self.listeners[event_type] = []
         self.listeners[event_type].append((cb, args))
+
+
+class IProcessEvent(ABC):
+    @abstractmethod
+    def process_event(self, event, *args, **kwargs):
+        pass

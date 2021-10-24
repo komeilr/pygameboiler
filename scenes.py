@@ -93,6 +93,7 @@ class MainMenuScene(Scene):
             hover_color=pygame.Color('violet'),
             normal_color=pygame.Color('lightblue')
         )
+
         self.buttons.append(self.btn_quit)
 
     def process_event(self, event):
@@ -108,8 +109,7 @@ class MainMenuScene(Scene):
         if Input.is_action_just_pressed('ui_accept'):
             emit_event(ON_RELEASE, body=self.selected)
 
-        for button in self.buttons:
-            button.process_event(event)
+        self.layered_group.process_event(event)
 
     def update(self, dt):
         self.update_mouse_select()
