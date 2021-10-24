@@ -6,7 +6,7 @@ from pygame.math import Vector2
 from inputhandler import Input
 from interface import EventListener
 from content import Content
-from utils import emit_event
+from utils import emit_event, draw_text
 from enums import RenderLayer
 from customevents import ANIMATION_CHANGED, ON_PRESSED, ON_ENTER, ON_LEAVE, ON_RELEASE
 from logger import l
@@ -181,7 +181,6 @@ class Button(ButtonBase, pygame.sprite.DirtySprite):
         ButtonBase.__init__(self, x, y, w, h)
         pygame.sprite.DirtySprite.__init__(self, group)
 
-
         try:
             self.image = Content.Image.load(image_name)        
             self.rect = pygame.Rect(self.position.xy, self.image.get_size())
@@ -262,15 +261,9 @@ class Button(ButtonBase, pygame.sprite.DirtySprite):
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect, self.border_width)
         if self.text:
-            text_display = self.draw_text()
+            text_display = draw_text(text=self.text, font_name='Inconsolata_30', bold=self.bold)
             text_display_rect = text_display.get_rect(center=self.rect.center)
             screen.blit(text_display, text_display_rect)
 
     def update_image(self, image_name):
         self.image = Content.Image.load(image_name)
-
-    def draw_text(self):
-        self.font = Content.Font.get_font('Inconsolata')
-        self.font.set_bold(self.bold)
-        self.text_display = self.font.render(self.text, True, self.color)
-        return self.text_display

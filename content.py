@@ -19,14 +19,16 @@ def load_graphics(root_path, colorkey=(255, 0, 255)):
     return images
 
 
-def load_fonts(root_path, size=30):
+def load_fonts(root_path):
     fonts = {}
     for file in os.listdir(root_path):
-        file_name, ext = os.path.splitext(file)
-        fontfile = pygame.font.Font(os.path.join(root_path, file), size)
 
-        l.info(f"Loading font {file_name}")
-        fonts[file_name] = fontfile
+        file_name, ext = os.path.splitext(file)
+        for size in (20, 30, 40):
+            fontfile = pygame.font.Font(os.path.join(root_path, file), size)
+
+            l.info(f"Loading font {file_name}")
+            fonts[F"{file_name}_{str(size)}"] = fontfile
     return fonts
 
 

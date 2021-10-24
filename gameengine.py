@@ -35,7 +35,7 @@ class GameEngine(EventListener):
         self.on_event(pygame.KEYUP, self.key_released)
         self.on_event(DEBUG_TOGGLED, self.debug_toggled)
 
-        self.scene_manager = SceneManager(self, "SPLASHSCENE")
+        self.scene_manager = SceneManager(self, "MAINMENUSCENE")
 
         self.background_image = Content.Image.load('bg')
         self.bg_rect = self.background_image.get_rect()

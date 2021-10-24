@@ -1,6 +1,6 @@
 from interface import EventListener
 from customevents import SCENEDONE
-from scenes import SplashScene, MenuScene, SettingsScene
+from scenes import MainMenuScene, NewGameScene, SettingsScene
 
 
 class SceneManager(EventListener):
@@ -9,8 +9,8 @@ class SceneManager(EventListener):
         self.controller = controller
 
         self.scenes = {
-            "SPLASHSCENE": SplashScene,
-            "MENUSCENE": MenuScene, 
+            "MAINMENUSCENE": MainMenuScene,
+            "NEWGAMESCENE": NewGameScene,
             "SETTINGSSCENE": SettingsScene
         }
 

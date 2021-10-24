@@ -49,19 +49,25 @@ class Scene(EventListener):
 
 
 # ---------SPLASH SCENE-----------#
-class SplashScene(Scene):
+class MainMenuScene(Scene):
     def __init__(self):
         super().__init__()        
-        self.name = "SPLASHSCENE"
-        self.next = "MENUSCENE"
+        self.name = "MAINMENUSCENE"
+        self.next = "NEWGAMESCENE"
         self.background = pygame.Color(0, 0, 0, 0)  # change bg
 
         self.buttons = []
         self.layered_group = layered_group.copy()
 
+        self._init_buttons()
+
+        self.selected_index = 0
+        self.selected = self.buttons[self.selected_index]
+
+    def _init_buttons(self):
         self.btn_new = Button('NEW', 50, 50, 200, 50, self.layered_group)
         self.btn_new.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, centered=True)
-        self.btn_new.bind('on_release', self.switch_scene, next_scene='MENUSCENE')
+        self.btn_new.bind('on_release', self.switch_scene, next_scene='NEWGAMESCENE')
         self.btn_new.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -80,8 +86,8 @@ class SplashScene(Scene):
         self.buttons.append(self.btn_settings)
 
         self.btn_quit = Button('QUIT', SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125, 200, 50, self.layered_group)
-        self.btn_quit.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50, centered=True)
-        self.btn_quit.bind('on_release', self._quit)
+        self.btn_quit.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 40, centered=True)
+        self.btn_quit.bind('on_release', lambda: emit_event(pygame.QUIT))
         self.btn_quit.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -89,16 +95,11 @@ class SplashScene(Scene):
         )
         self.buttons.append(self.btn_quit)
 
-        self.selected_index = 0
-        self.selected = self.buttons[self.selected_index]
-
-    def _quit(self):
-        emit_event(pygame.QUIT)
-
     def process_event(self, event):
 
         if Input.is_action_just_pressed('ui_up'):
             self.selected_index -= 1
+
         if Input.is_action_just_pressed('ui_down'):
             self.selected_index += 1
 
@@ -107,9 +108,8 @@ class SplashScene(Scene):
         if Input.is_action_just_pressed('ui_accept'):
             emit_event(ON_RELEASE, body=self.selected)
 
-        self.btn_new.process_event(event)
-        self.btn_settings.process_event(event)
-        self.btn_quit.process_event(event)
+        for button in self.buttons:
+            button.process_event(event)
 
     def update(self, dt):
         self.update_mouse_select()
@@ -145,25 +145,24 @@ class SplashScene(Scene):
 
     def draw(self, screen):
         self.screen.fill(self.background)
-        self.btn_new.draw(self.screen)
-        self.btn_settings.draw(self.screen)
-        self.btn_quit.draw(self.screen)
+        for button in self.buttons:
+            button.draw(self.screen)
+
         screen.blit(self.screen, self.screen_rect)
-        # screen.blit(self.megaman_image, self.megaman_rect)
 
 
 # ----------MENU SCENE------------#
-class MenuScene(Scene):
+class NewGameScene(Scene):
     def __init__(self):
         super().__init__()
-        self.name = "MENUSCENE"
-        self.next = "SPLASHSCENE"
+        self.name = "NEWGAMESCENE"
+        self.next = "MAINMENUSCENE"
         self.background = pygame.Color(0, 0, 0, 0)
         self.layered_group = layered_group.copy()
 
         self.btn_back = Button('BACK', 50, 50, 100, 50, self.layered_group)
         self.btn_back.set_position(SCREEN_WIDTH * 0.87, SCREEN_HEIGHT - 50, centered=True)
-        self.btn_back.bind('on_release', self.switch_scene, next_scene='SPLASHSCENE')
+        self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
         self.btn_back.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -171,6 +170,8 @@ class MenuScene(Scene):
         )
 
     def process_event(self, event):
+        if Input.is_action_just_pressed('ui_back'):
+            emit_event(ON_RELEASE, body=self.btn_back)
         self.btn_back.process_event(event)
 
     def update(self, dt):
@@ -188,13 +189,13 @@ class SettingsScene(Scene):
     def __init__(self):
         super().__init__()
         self.name = "SETTINGSSCENE"
-        self.next = "SPLASHSCENE"
+        self.next = "MAINMENUSCENE"
         self.background = pygame.Color(0, 0, 0, 0)
         self.layered_group = layered_group.copy()
 
         self.btn_back = Button('BACK', 50, 50, 100, 50, self.layered_group)
         self.btn_back.set_position(SCREEN_WIDTH * 0.87, SCREEN_HEIGHT - 50, centered=True)
-        self.btn_back.bind('on_release', self.switch_scene, next_scene='SPLASHSCENE')
+        self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
         self.btn_back.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -202,6 +203,8 @@ class SettingsScene(Scene):
         )
 
     def process_event(self, event):
+        if Input.is_action_just_pressed('ui_back'):
+            emit_event(ON_RELEASE, body=self.btn_back)
         self.btn_back.process_event(event)
 
     def update(self, dt):
