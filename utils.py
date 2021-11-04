@@ -8,7 +8,7 @@ def emit_event(event_type, *args, **kwargs):
 
 def draw_text(
     text: str,
-    font_name: str = "Inconsolata",
+    font_name: str = "Inconsolata_30",
     bold: int = 0,
     color=pygame.Color("white"),
 ) -> pygame.surface.Surface:

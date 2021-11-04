@@ -1,6 +1,6 @@
 import pygame
 from interface import EventListener
-from customevents import SCENEDONE, ON_RELEASE, FADEEND, FADESTART, TRANSITION_DONE
+from customevents import SCENEDONE, ON_RELEASE, FADEEND, FADESTART, TRANSITION_DONE, TRANSITION_START
 from inputhandler import Input
 from utils import emit_event, draw_text
 from components import Button
@@ -14,7 +14,7 @@ class Scene(EventListener):
         super().__init__()
         self.done = False
         self.name = "Base Scene"
-        self.next = ""
+        self.next_scene = ""
         self.screen = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.screen_rect = self.screen.get_rect()
         self.screen_size = self.screen.get_size()
@@ -31,7 +31,7 @@ class Scene(EventListener):
     def scene_done(self, next_scene=None):
         self.done = True
         if next_scene is not None:
-            self.next = next_scene
+            self.next_scene = next_scene
 
     def check_done(self):
         if self.done:
@@ -45,7 +45,7 @@ class Scene(EventListener):
 
     def switch_scene(self, next_scene=None):
         if next_scene is not None:
-            self.next = next_scene
+            self.next_scene = next_scene
         self.done = True
 
 
@@ -55,7 +55,7 @@ class MainMenuScene(Scene):
         super().__init__()
         self.name = "MAINMENUSCENE"
         self.next = "NEWGAMESCENE"
-        self.background = pygame.Color(0, 0, 0, 0)  # change bg
+        self.background = pygame.Color('gray30')  # change bg
 
         self.buttons = []
         self.layered_group = layered_group.copy()
@@ -74,7 +74,8 @@ class MainMenuScene(Scene):
     def _init_buttons(self):
         self.btn_new = Button('NEW', 50, 50, 200, 50, self.layered_group)
         self.btn_new.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, centered=True)
-        self.btn_new.bind('on_release', self.switch_scene, next_scene='NEWGAMESCENE')
+        # self.btn_new.bind('on_release', self.switch_scene, next_scene='NEWGAMESCENE')
+        self.btn_new.bind('on_release', self.start_transition)
         self.btn_new.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -102,6 +103,9 @@ class MainMenuScene(Scene):
         )
 
         self.buttons.append(self.btn_quit)
+        
+    def start_transition(self):
+        emit_event(TRANSITION_START)
 
     def process_event(self, event):
 
@@ -158,18 +162,19 @@ class MainMenuScene(Scene):
         screen.blit(self.screen, self.screen_rect)
 
 
-# ----------MENU SCENE------------#
+# ----------NEW GAME SCENE------------#
 class NewGameScene(Scene):
     def __init__(self):
         super().__init__()
         self.name = "NEWGAMESCENE"
         self.next = "MAINMENUSCENE"
-        self.background = pygame.Color(0, 0, 0, 0)
+        self.background = pygame.Color('maroon')
         self.layered_group = layered_group.copy()
 
         self.btn_back = Button('BACK', 50, 50, 100, 50, self.layered_group)
         self.btn_back.set_position(SCREEN_WIDTH * 0.87, SCREEN_HEIGHT - 50, centered=True)
-        self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
+        # self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
+        self.btn_back.bind('on_release', lambda: emit_event(TRANSITION_START))
         self.btn_back.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -197,7 +202,7 @@ class SettingsScene(Scene):
         super().__init__()
         self.name = "SETTINGSSCENE"
         self.next = "MAINMENUSCENE"
-        self.background = pygame.Color(0, 0, 0, 0)
+        self.background = pygame.Color('midnightblue')
         self.layered_group = layered_group.copy()
 
         self.btn_back = Button('BACK', 50, 50, 100, 50, self.layered_group)
@@ -228,20 +233,20 @@ class SettingsScene(Scene):
 class TransitionScene(Scene):
     def __init__(self, from_scene: Scene, to_scene: Scene):
         super().__init__()
-        self.next = self.to_scene.name
-        self.from_scene = from_scene
+        print(id(self))
+        self.name = "TRANSITIONSCENE"
         self.to_scene = to_scene
+        #self.next = self.to_scene.name
+        self.from_scene = from_scene          
         
         self.current_percent = 0
         
     def update(self, dt):
-        self.current_percent += 1                   
+        self.current_percent += 2                  
         
         if self.current_percent >= 100:
-            self.done = True
-            emit_event(SCENEDONE, self)
-            
-        
+            #self.done = True
+            emit_event(TRANSITION_DONE, scene=self.to_scene)  
             
 
 class FadeTransition(TransitionScene):
@@ -250,10 +255,12 @@ class FadeTransition(TransitionScene):
         
         
     def draw(self, screen):
-        if self.current_percent < 50:
-            self.from_scene.draw(screen)
-        else:
-            self.to_scene.draw(screen)
+        self.screen.fill((0, 0, 0))
+        # self.screen.set_alpha(0)
+        # if self.current_percent < 50:
+        #     self.from_scene.draw(screen)
+        # else:
+        #     self.to_scene.draw(screen)
         image_text = draw_text(f"Transition Percent: {self.current_percent}")
         image_text_rect = image_text.get_rect()
         image_text_rect.topleft = (10, 60)
