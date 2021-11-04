@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from pygame.sprite import LayeredDirty
 from interface import IProcessEvent
 
@@ -13,5 +12,3 @@ class LayeredDirtyEvent(LayeredDirty, IProcessEvent):
 
 
 layered_group = LayeredDirtyEvent()
-
-

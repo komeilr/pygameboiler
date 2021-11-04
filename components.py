@@ -6,9 +6,10 @@ from pygame.math import Vector2
 from inputhandler import Input
 from interface import EventListener
 from content import Content
-from utils import emit_event, draw_text
+from utils import emit_event, draw_text, clamp
 from enums import RenderLayer
-from customevents import ANIMATION_CHANGED, ON_PRESSED, ON_ENTER, ON_LEAVE, ON_RELEASE
+from customevents import ANIMATION_CHANGED, ON_PRESSED, ON_ENTER, ON_LEAVE, ON_RELEASE, FADEEND, FADESTART, \
+    TRANSITION_DONE
 from logger import l
 
 
@@ -41,14 +42,15 @@ class SpriteSheet:
 
         for y in range(self.v_frames):
             for x in range(self.h_frames):
-                frame_dict[frame_num] = (x * self.frame_width, y * self.frame_height, self.frame_width, self.frame_height)
+                frame_dict[frame_num] = (
+                    x * self.frame_width, y * self.frame_height, self.frame_width, self.frame_height)
                 frame_num += 1
         return frame_dict
 
     def image_at_frame(self, frame, colorkey=None) -> pygame.surface.Surface:
         rect = pygame.Rect(self.frame_coords[frame])
         image = pygame.surface.Surface(rect.size).convert()
-        image.blit(self.image, (0, 0),  rect)
+        image.blit(self.image, (0, 0), rect)
         if colorkey is not None:
             if colorkey is -1:
                 colorkey = image.get_at((0, 0))
@@ -64,7 +66,7 @@ class SpriteSheet:
 
 class Animation:
     def __init__(self, name, spritesheet, frame_start, frame_end):
-        self.name = name 
+        self.name = name
         self.frames = spritesheet.load_frames(frame_start, frame_end)
 
     def __len__(self):
@@ -87,11 +89,11 @@ class AnimationPlayer(EventListener):
         self.on_event(ANIMATION_CHANGED, self.animation_changed)
 
     def animation_changed(self, event):
-        self.anim_time = 0     
+        self.anim_time = 0
 
-    def update(self, dt):        
-        time_per_frame = 1/self.playback_speed
-        
+    def update(self, dt):
+        time_per_frame = 1 / self.playback_speed
+
         self.anim_time += dt
         if self.anim_time > time_per_frame * self.playback_speed:
             self.anim_time -= (time_per_frame * self.playback_speed)
@@ -173,7 +175,7 @@ class ButtonBase(EventListener):
     def bind(self, button_state, command, *args, **kwargs):
         if button_state not in self.state_commands:
             self.state_commands[button_state] = [command, args, kwargs]
-        
+
 
 class Button(ButtonBase, pygame.sprite.DirtySprite):
     def __init__(self, image_name, x, y, w, h, group):
@@ -182,10 +184,10 @@ class Button(ButtonBase, pygame.sprite.DirtySprite):
         pygame.sprite.DirtySprite.__init__(self, group)
 
         try:
-            self.image = Content.Image.load(image_name)        
+            self.image = Content.Image.load(image_name)
             self.rect = pygame.Rect(self.position.xy, self.image.get_size())
         except ValueError as e:
-            print(f"{e} - Using text - {image_name}")
+            l.info(f"{e} - Using text - {image_name}")
             self.rect = pygame.Rect(self.position.xy, (w, h))
             self.text = image_name
 
@@ -228,10 +230,10 @@ class Button(ButtonBase, pygame.sprite.DirtySprite):
     def set_bold(self, value):
         self.bold = value
 
-    def process_event(self, event):                    
+    def process_event(self, event):
         if event.type in self.listeners:
             self.handle_event(event)
-            
+
         if not self.disabled:
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == pygame.BUTTON_LEFT:
@@ -241,21 +243,21 @@ class Button(ButtonBase, pygame.sprite.DirtySprite):
     def call_back(self, key):
         if key in self.state_commands:
             cb, args, kwargs = self.state_commands[key]
-            return cb(*args, **kwargs)      
+            return cb(*args, **kwargs)
 
     def update(self, dt):
         mouse_pos = pygame.mouse.get_pos()
-        
+
         if self.rect.collidepoint(mouse_pos) and not self.mouse_entered:
-            if not self.disabled:           
+            if not self.disabled:
                 emit_event(ON_ENTER, body=self)
 
         elif not self.rect.collidepoint(mouse_pos) and self.mouse_entered:
-            if not self.disabled: 
+            if not self.disabled:
                 emit_event(ON_LEAVE, body=self)
-        
+
         if self.mouse_entered and Input.leftmousedown():
-            if not self.disabled: 
+            if not self.disabled:
                 emit_event(ON_PRESSED, body=self)
 
     def draw(self, screen):
@@ -267,3 +269,4 @@ class Button(ButtonBase, pygame.sprite.DirtySprite):
 
     def update_image(self, image_name):
         self.image = Content.Image.load(image_name)
+

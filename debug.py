@@ -3,7 +3,7 @@ from content import Content
 
 
 try:
-    font = Content.Font.get_font('Inconsolata')
+    font = Content.Font.get_font('Inconsolata_20')
 except ValueError as e:
     print(e)
     print("Loading default sysfont 'Arial' ")

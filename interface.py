@@ -11,7 +11,13 @@ class IEvent(ABC):
         pass
 
 
-class EventListener(IEvent):
+class IProcessEvent(ABC):
+    @abstractmethod
+    def process_event(self, event):
+        pass
+
+
+class EventListener(IEvent, IProcessEvent):
     def __init__(self):
         self.listeners = {}
 
@@ -24,8 +30,13 @@ class EventListener(IEvent):
             self.listeners[event_type] = []
         self.listeners[event_type].append((cb, args))
 
+    def process_event(self, event):
+        if event.type in self.listeners:
+            self.handle_event(event)
+            
+    def __repr__(self):
+        return f"<{self.__class__.__name__}>"
 
-class IProcessEvent(ABC):
-    @abstractmethod
-    def process_event(self, event, *args, **kwargs):
-        pass
+
+
+

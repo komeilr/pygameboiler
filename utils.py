@@ -6,7 +6,12 @@ def emit_event(event_type, *args, **kwargs):
     pygame.event.post(pygame.event.Event(event_type, *args, **kwargs))
 
 
-def draw_text(text: str, font_name: str = 'Inconsolata', bold: int = 0, color=pygame.Color('white')) -> pygame.surface.Surface:
+def draw_text(
+    text: str,
+    font_name: str = "Inconsolata",
+    bold: int = 0,
+    color=pygame.Color("white"),
+) -> pygame.surface.Surface:
     """
     Returns surface with rendered text
     :param text: text to render
@@ -19,3 +24,14 @@ def draw_text(text: str, font_name: str = 'Inconsolata', bold: int = 0, color=py
     font.set_bold(bold)
     text_display = font.render(text, True, color)
     return text_display
+
+
+def clamp(val, minval, maxval):
+    """
+    clamps val between minval and maxval inclusive
+    :param val:
+    :param minval:
+    :param maxval:
+    :return:
+    """
+    return max(minval, min(val, maxval))

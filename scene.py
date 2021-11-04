@@ -1,8 +1,8 @@
 import pygame
 from interface import EventListener
-from customevents import SCENEDONE, ON_RELEASE
+from customevents import SCENEDONE, ON_RELEASE, FADEEND, FADESTART, TRANSITION_DONE
 from inputhandler import Input
-from utils import emit_event
+from utils import emit_event, draw_text
 from components import Button
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from groups import layered_group
@@ -17,6 +17,7 @@ class Scene(EventListener):
         self.next = ""
         self.screen = pygame.surface.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.screen_rect = self.screen.get_rect()
+        self.screen_size = self.screen.get_size()
 
     def process_event(self, event):
         pass        
@@ -48,10 +49,10 @@ class Scene(EventListener):
         self.done = True
 
 
-# ---------SPLASH SCENE-----------#
+# ---------MENU SCENE-----------#
 class MainMenuScene(Scene):
     def __init__(self):
-        super().__init__()        
+        super().__init__()
         self.name = "MAINMENUSCENE"
         self.next = "NEWGAMESCENE"
         self.background = pygame.Color(0, 0, 0, 0)  # change bg
@@ -63,6 +64,12 @@ class MainMenuScene(Scene):
 
         self.selected_index = 0
         self.selected = self.buttons[self.selected_index]
+
+    def enter(self):
+        pass
+
+    def exit(self):
+        super().exit()
 
     def _init_buttons(self):
         self.btn_new = Button('NEW', 50, 50, 200, 50, self.layered_group)
@@ -215,5 +222,42 @@ class SettingsScene(Scene):
         self.screen.fill(self.background)
         # self.layered_group.draw(screen)
         self.btn_back.draw(self.screen)
+        screen.blit(self.screen, self.screen_rect)            
+
+
+class TransitionScene(Scene):
+    def __init__(self, from_scene: Scene, to_scene: Scene):
+        super().__init__()
+        self.next = self.to_scene.name
+        self.from_scene = from_scene
+        self.to_scene = to_scene
+        
+        self.current_percent = 0
+        
+    def update(self, dt):
+        self.current_percent += 1                   
+        
+        if self.current_percent >= 100:
+            self.done = True
+            emit_event(SCENEDONE, self)
+            
+        
+            
+
+class FadeTransition(TransitionScene):
+    def __init__(self, from_scene, to_scene):
+        super().__init__(from_scene, to_scene)
+        
+        
+    def draw(self, screen):
+        if self.current_percent < 50:
+            self.from_scene.draw(screen)
+        else:
+            self.to_scene.draw(screen)
+        image_text = draw_text(f"Transition Percent: {self.current_percent}")
+        image_text_rect = image_text.get_rect()
+        image_text_rect.topleft = (10, 60)
+        self.screen.blit(image_text, image_text_rect)
         screen.blit(self.screen, self.screen_rect)
+        
         

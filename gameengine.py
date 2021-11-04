@@ -86,7 +86,6 @@ class GameEngine(EventListener):
 
     def update(self, dt):
         self.scene_manager.update(dt)
-        pass
 
     def draw(self):
         self.scene_manager.draw(self.screen)
