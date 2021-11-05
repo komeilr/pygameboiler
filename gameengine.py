@@ -89,11 +89,9 @@ class GameEngine(EventListener):
 
     def draw(self):
         self.scene_manager.draw(self.screen)
-        # self.screen.blit(self.background_image, self.bg_rect)  # debug for testing Image class
         if self.debug:
             debug_info(f"FPS: {int(self.timer.get_fps())}")
             debug_info(f"Scene: {self.scene_manager.active.name}", 40)
-            # debug_info(f"dt: {pygame.time.get_ticks()}", 50)
         pygame.display.update()
 
     def update_title(self, title):
