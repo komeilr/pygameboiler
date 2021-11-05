@@ -239,15 +239,25 @@ class TransitionScene(Scene):
         self.to_scene = to_scene
         self.from_scene = from_scene          
         
+        self.time = 0
         self.current_percent = 0
+        self.transition_time = 1        
+
+    def ease_in_out(self, t):
+        return t ** 2 / (2.0 * (t ** 2 - t) + 1.0)
         
-    def update(self, dt):
-        self.current_percent += 2
+    # def update(self, dt):
+    #     self.current_percent += self.transition_time * 1        
         
-        self.set_screen_alpha()
+    #     if self.current_percent < 50:
+    #         alpha = self.ease_in_out(self.current_percent * 2 / 100) * 255
+            
+    #     else:
+    #         alpha = (1 - self.ease_in_out((self.current_percent - 50) * 2 / 100)) * 255
+
+    #     self.set_screen_alpha(alpha)
         
-    def set_screen_alpha(self):
-        alpha = (50 - abs(50 - self.current_percent)) / 50 * 255
+    def set_screen_alpha(self, alpha):
         self.screen.set_alpha(alpha)
         
         if self.current_percent >= 100:
@@ -258,6 +268,16 @@ class FadeTransition(TransitionScene):
     def __init__(self, from_scene, to_scene):
         super().__init__(from_scene, to_scene)
         
+    def update(self, dt):
+        self.current_percent += self.transition_time * 1        
+        
+        if self.current_percent < 50:
+            alpha = self.ease_in_out(self.current_percent * 2 / 100) * 255
+            
+        else:
+            alpha = (1 - self.ease_in_out((self.current_percent - 50) * 2 / 100)) * 255
+
+        self.set_screen_alpha(alpha)        
         
     def draw(self, screen):
         if self.current_percent < 50:
