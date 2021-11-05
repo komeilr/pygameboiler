@@ -40,7 +40,8 @@ class SceneManager(EventListener):
             
     def transition_start(self, event):
         from_scene = self.active
-        to_scene = self.scenes[self.active.next]()
+        # to_scene = self.scenes[self.active.next]()
+        to_scene = self.scenes[event.to_scene]()
         self.active = FadeTransition(from_scene, to_scene)
         
     def transition_done(self, event):

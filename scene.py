@@ -75,7 +75,7 @@ class MainMenuScene(Scene):
         self.btn_new = Button('NEW', 50, 50, 200, 50, self.layered_group)
         self.btn_new.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, centered=True)
         # self.btn_new.bind('on_release', self.switch_scene, next_scene='NEWGAMESCENE')
-        self.btn_new.bind('on_release', self.start_transition)
+        self.btn_new.bind('on_release', self.start_transition, to_scene='NEWGAMESCENE')
         self.btn_new.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -85,7 +85,8 @@ class MainMenuScene(Scene):
 
         self.btn_settings = Button('SETTINGS', SCREEN_WIDTH // 2, SCREEN_HEIGHT - 125, 200, 50, self.layered_group)
         self.btn_settings.set_position(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 95, centered=True)
-        self.btn_settings.bind('on_release', self.switch_scene, next_scene='SETTINGSSCENE')
+        # self.btn_settings.bind('on_release', self.switch_scene, next_scene='SETTINGSSCENE')
+        self.btn_settings.bind('on_release', self.start_transition, to_scene='SETTINGSSCENE')
         self.btn_settings.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -104,8 +105,8 @@ class MainMenuScene(Scene):
 
         self.buttons.append(self.btn_quit)
         
-    def start_transition(self):
-        emit_event(TRANSITION_START)
+    def start_transition(self, to_scene=None):
+        emit_event(TRANSITION_START, to_scene=to_scene)
 
     def process_event(self, event):
 
@@ -174,7 +175,7 @@ class NewGameScene(Scene):
         self.btn_back = Button('BACK', 50, 50, 100, 50, self.layered_group)
         self.btn_back.set_position(SCREEN_WIDTH * 0.87, SCREEN_HEIGHT - 50, centered=True)
         # self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
-        self.btn_back.bind('on_release', lambda: emit_event(TRANSITION_START))
+        self.btn_back.bind('on_release', lambda: emit_event(TRANSITION_START, to_scene='MAINMENUSCENE'))
         self.btn_back.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
@@ -207,7 +208,8 @@ class SettingsScene(Scene):
 
         self.btn_back = Button('BACK', 50, 50, 100, 50, self.layered_group)
         self.btn_back.set_position(SCREEN_WIDTH * 0.87, SCREEN_HEIGHT - 50, centered=True)
-        self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
+        # self.btn_back.bind('on_release', self.switch_scene, next_scene='MAINMENUSCENE')
+        self.btn_back.bind('on_release', lambda: emit_event(TRANSITION_START, to_scene='MAINMENUSCENE'))
         self.btn_back.config(
             pressed_color=pygame.Color('lightblue'),
             hover_color=pygame.Color('violet'),
