@@ -233,19 +233,22 @@ class SettingsScene(Scene):
 class TransitionScene(Scene):
     def __init__(self, from_scene: Scene, to_scene: Scene):
         super().__init__()
-        print(id(self))
         self.name = "TRANSITIONSCENE"
         self.to_scene = to_scene
-        #self.next = self.to_scene.name
         self.from_scene = from_scene          
         
         self.current_percent = 0
         
     def update(self, dt):
-        self.current_percent += 2                  
+        self.current_percent += 2
+        
+        self.set_screen_alpha()
+        
+    def set_screen_alpha(self):
+        alpha = (50 - abs(50 - self.current_percent)) / 50 * 255
+        self.screen.set_alpha(alpha)
         
         if self.current_percent >= 100:
-            #self.done = True
             emit_event(TRANSITION_DONE, scene=self.to_scene)  
             
 
@@ -255,16 +258,11 @@ class FadeTransition(TransitionScene):
         
         
     def draw(self, screen):
-        self.screen.fill((0, 0, 0))
-        # self.screen.set_alpha(0)
-        # if self.current_percent < 50:
-        #     self.from_scene.draw(screen)
-        # else:
-        #     self.to_scene.draw(screen)
-        image_text = draw_text(f"Transition Percent: {self.current_percent}")
-        image_text_rect = image_text.get_rect()
-        image_text_rect.topleft = (10, 60)
-        self.screen.blit(image_text, image_text_rect)
+        if self.current_percent < 50:
+            self.from_scene.draw(screen)
+        else:
+            self.to_scene.draw(screen)
+
         screen.blit(self.screen, self.screen_rect)
         
         
