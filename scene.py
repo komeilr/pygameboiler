@@ -244,11 +244,11 @@ class TransitionScene(Scene):
         self.transition_time = 1
         
     def ease_in(self, t):
-        #return t ** 2
+        # return t ** 2
         return (t - 1) ** 2
     
     def ease_out(self, t):
-        #return 1 - t ** 2
+        # return 1 - t ** 2
         return 1 - (t - 1) ** 2
 
     def ease_in_out(self, t):
@@ -266,10 +266,10 @@ class FadeTransition(TransitionScene):
         super().__init__(from_scene, to_scene)
         
     def update(self, dt):
-        self.current_percent += self.transition_time * 1   
+        self.current_percent += self.transition_time * 3
         
         if self.current_percent < 50:
-            #alpha = self.ease_in_out(self.current_percent * 2 / 100) * 255
+            # alpha = self.ease_in_out(self.current_percent * 2 / 100) * 255
             alpha = self.ease_out(self.current_percent * 2 / 100) * 255
         else:
             # alpha = (1 - self.ease_in_out((self.current_percent - 50) * 2 / 100)) * 255
