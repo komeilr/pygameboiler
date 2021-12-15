@@ -42,7 +42,7 @@ def save_settings(config_settings: ConfigSettings) -> None:
         config.write(configfile)
 
 
-def init_load() -> ConfigSettings:
+def init_config_settings() -> ConfigSettings:
     configsettings = ConfigSettings()
     if check_settings_exists():
         load_settings(configsettings)
